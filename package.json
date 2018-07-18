@@ -1,0 +1,16 @@
+{
+  "name": "survey-gorilla-server",
+  "version": "1.0.0",
+  "description": "Server for the survey gorilla app.",
+  "main": "index.js",
+  "author": "Street Legal",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "shortid": "^2.2.12"
+  },
+  "scripts": {
+    "start": "node src/server.js"
+  }
+}
