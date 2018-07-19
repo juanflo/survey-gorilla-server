@@ -43,6 +43,7 @@ app.post(`${API}/register`, (req, res) => {
     connection.query('INSERT INTO teams SET ?', options, (err, results, fields) => {
         if (err) {
             console.error(`Could not register new team ${name}`);
+            res.status(500).send();
             return;
         }
 
@@ -66,6 +67,7 @@ app.post(`${API}/team/:teamId/start-survey`, (req, res) => {
          SELECT '${surveyId}', team_id FROM teams WHERE teams.team_uuid = '${team_shortId}'`, (err, results, fields) => {
             if (err) {
                 console.error(`Could not create survey ${surveyId} for team ${team_shortId}`);
+                res.status(500).send();
                 return;
             }
 
@@ -79,6 +81,11 @@ app.post(`${API}/team/:teamId/start-survey`, (req, res) => {
 
 app.get(`${API}/questions`, (req, res) => {
     connection.query('SELECT question_id, question_text FROM questions', (err, results, fields) => {
+        if (err) {
+            console.error('Could not retrieve questions from database');
+            res.status(500).send();
+            return;
+        }
         res.status(200).json(results);
     });
 });
