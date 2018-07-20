@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS `survey`;
 CREATE TABLE `survey` (
   `survey_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `survey_uuid` char(32) NOT NULL DEFAULT '''',
+  `survey_name` text NOT NULL,
   `team_id` int(10) unsigned NOT NULL,
   `create_date` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`survey_id`),
@@ -65,6 +66,7 @@ DROP TABLE IF EXISTS `answer`;
 CREATE TABLE `answer` (
   `answer_id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `answer_uuid` char(32) NOT NULL DEFAULT '',
+  `answer_comment` text NOT NULL,
   `question_id` bigint(20) NOT NULL,
   `survey_id` bigint(11) NOT NULL,
   `answer_result` int(11) DEFAULT NULL,
@@ -76,6 +78,25 @@ CREATE TABLE `answer` (
   KEY `create_date` (`create_date`),
   CONSTRAINT `delete_answers_as_question_removed` FOREIGN KEY (`question_id`) REFERENCES `question` (`question_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `delete_answers_as_survey_removed` FOREIGN KEY (`survey_id`) REFERENCES `survey` (`survey_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+# Dump of table survey_response
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `survey_response`;
+
+CREATE TABLE `survey_response` (
+  `survey_response_id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+  `survey_response_uuid` char(32) NOT NULL DEFAULT '',
+  `survey_response_comment` text NOT NULL,
+  `survey_id` bigint(11) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`survey_response_id`),
+  UNIQUE KEY `survey_response_uuid` (`survey_response_uuid`),
+  KEY `survey_id` (`survey_id`),
+  KEY `create_date` (`create_date`),
+  CONSTRAINT `delete_survey_response_as_survey_removed` FOREIGN KEY (`survey_id`) REFERENCES `survey` (`survey_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

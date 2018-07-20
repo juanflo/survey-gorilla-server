@@ -17,7 +17,8 @@ const connection = mysql.createConnection({
     host: DB_SERVER,
     user: DB_USER,
     password: DB_PASSWORD,
-    database: DB_DATABASE
+    database: DB_DATABASE,
+    multipleStatements: true
 });
 
 connection.connect((err) => {
@@ -40,11 +41,12 @@ app.post(`${API}/register`, (req, res) => {
     const name = req.body.name;
     const team_shortId = shortid.generate();
 
+    const query = 'INSERT INTO team SET ?'
     const options = {
         team_uuid: team_shortId,
         team_name: name
     };
-    connection.query('INSERT INTO team SET ?', options, (err, results, fields) => {
+    connection.query(query, options, (err, results, fields) => {
         if (err) {
             console.error(`Could not register new team ${name}`);
             res.status(500).send();
@@ -64,10 +66,12 @@ app.post(`${API}/register`, (req, res) => {
 app.post(`${API}/team/:teamId/start-survey`, (req, res) => {
     const team_shortId = req.params.teamId;
     const surveyId = shortid.generate();
+    const survey_name = req.body.name;
 
-    connection.query(
-        `INSERT INTO survey (survey_uuid, team_id) 
-         SELECT '${surveyId}', team_id FROM team WHERE team.team_uuid = '${team_shortId}'`, (err, results, fields) => {
+    const query = `INSERT INTO survey (survey_uuid, survey_name, team_id) VALUES 
+                   (${connection.escape(surveyId)}, ${connection.escape(survey_name)}, (SELECT team_id FROM team WHERE team.team_uuid = ${connection.escape(team_shortId)}))`;
+
+    connection.query(query, (err, results, fields) => {
             if (err) {
                 console.error(`Could not create survey ${surveyId} for team ${team_shortId}`);
                 res.status(500).send();
@@ -85,9 +89,33 @@ app.post(`${API}/team/:teamId/start-survey`, (req, res) => {
 /**
  * Submit a survey
  */
-app.post(`${API}/survey/:teamId/:surveyId`, (req, res) => {
+app.post(`${API}/survey/:teamId/:surveyId/submit`, (req, res) => {
     const team_shortId = req.params.teamId;
     const surveyId = req.params.surveyId;
+
+    let query = 'INSERT INTO answer (answer_uuid, answer_comment, question_id, survey_id, answer_result) VALUES ';
+    req.body.answers.forEach((answer, index, array) => {
+        query += `('${shortid.generate()}', `;
+        query += `${connection.escape((answer.comments) ? answer.comments : '')}, `
+        query += `(SELECT question_id FROM question WHERE question.question_uuid = ${connection.escape(answer.questionId)}), `;
+        query += `(SELECT survey_id FROM survey WHERE survey.survey_uuid = ${connection.escape(surveyId)}), `; 
+        query += `${connection.escape(answer.answer)})${(index === array.length - 1) ? `;`: `, `}`;
+    });
+
+    if (req.body.comments) {
+        query += ' INSERT INTO survey_response (survey_response_uuid, survey_response_comment, survey_id) VALUES ';
+        query += `('${shortid.generate()}', ${connection.escape(req.body.comments)}, (SELECT survey_id FROM survey WHERE survey.survey_uuid = ${connection.escape(surveyId)}))`;
+    }
+
+    connection.query(query, (err) => {
+        if (err) {
+            console.error(`Could not save survey ${surveyId} for team ${team_shortId}`);
+            res.status(500).send();
+            return;
+        }
+
+        res.status(201).send();
+    })
 });
 
 
@@ -95,7 +123,7 @@ app.post(`${API}/survey/:teamId/:surveyId`, (req, res) => {
  * Retrieve a list of questions
  */
 app.get(`${API}/questions`, (req, res) => {
-    connection.query('SELECT question_id, question_text FROM question', (err, results, fields) => {
+    connection.query('SELECT question_uuid, question_text FROM question', (err, results, fields) => {
         if (err) {
             console.error('Could not retrieve questions from database');
             res.status(500).send();
