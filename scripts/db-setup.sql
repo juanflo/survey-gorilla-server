@@ -16,7 +16,7 @@ CREATE TABLE `teams` (
   UNIQUE KEY `team_uuid` (`team_uuid`),
   KEY `create_date` (`create_date`),
   KEY `team_name` (`team_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 
@@ -35,7 +35,7 @@ CREATE TABLE `surveys` (
   KEY `team_id` (`team_id`),
   KEY `create_date` (`create_date`),
   CONSTRAINT `delete_surveys_as_team_removed` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 
