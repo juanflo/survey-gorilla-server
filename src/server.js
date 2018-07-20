@@ -46,12 +46,11 @@ app.post(`${API}/register`, (req, res) => {
             res.status(500).send();
             return;
         }
-
+        
+        res.status(201).json({
+            teamId: team_shortId
+        });
         console.info(`New team ${name} has been successfully registered.`);
-    });
-
-    res.status(201).json({
-        teamId: team_shortId
     });
 });
 
