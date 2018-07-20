@@ -3,6 +3,7 @@ node_modules
 package-lock.json
 .eslintcache
 *.log
+.env
 
 # VS Code
 .vscode
