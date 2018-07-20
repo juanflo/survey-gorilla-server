@@ -34,13 +34,8 @@ CREATE TABLE `survey` (
   UNIQUE KEY `survey_uuid` (`survey_uuid`),
   KEY `team_id` (`team_id`),
   KEY `create_date` (`create_date`),
-<<<<<<< HEAD
   CONSTRAINT `delete_survey_as_team_removed` FOREIGN KEY (`team_id`) REFERENCES `team` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
-=======
-  CONSTRAINT `delete_surveys_as_team_removed` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
->>>>>>> c052b880a42c933f7a1d406a32ff7a9a68f75ebc
 
 
 
