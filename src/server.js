@@ -118,6 +118,9 @@ app.post(`${API}/survey/:teamId/:surveyId/submit`, (req, res) => {
     })
 });
 
+/**
+ * Retrieves team info
+ */
 app.get(`${API}/team/:teamId`, (req, res) => {
     const team_shortId = req.params.teamId;
     const query = 'SELECT team_uuid AS id, team_name AS name FROM team WHERE team_uuid = ?';
