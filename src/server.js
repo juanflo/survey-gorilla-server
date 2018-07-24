@@ -191,7 +191,7 @@ app.get(`${API}/survey/:teamId/:surveyId/result`, (req, res) => {
             return;
         }
 
-        res.status(200).json(results);
+        res.status(200).json(results[0]);
 
     });
 });
@@ -213,7 +213,7 @@ app.get(`${API}/survey/:teamId/result`, (req, res) => {
             return;
         }
 
-        res.status(200).json(results);
+        res.status(200).json(results[0]);
     });
 })
 
