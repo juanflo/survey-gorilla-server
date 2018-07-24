@@ -205,3 +205,57 @@ BEGIN
     ;
 END$$
 DELIMITER ;
+
+
+# Get the average score of a question of provided number of surveys of particular team
+# ------------------------------------------------------------------------------------
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `getResultsByTeamAndQuestion`; $$
+CREATE PROCEDURE `getResultsByTeamAndQuestion`(IN team_uuid VARCHAR(32), IN question_uuid VARCHAR(32), IN surveyLimit INT)
+BEGIN
+    WITH filteredSurvey AS
+    (
+        SELECT
+            sur.*
+        FROM survey sur
+            INNER JOIN team tea on tea.team_id = sur.team_id
+        WHERE
+            tea.team_uuid = team_uuid
+        ORDER BY 
+            sur.create_date DESC
+        LIMIT surveyLimit
+    ),
+    avgTable AS 
+    (
+        SELECT
+            ans.survey_id, 
+            ans.question_id,
+            que.question_uuid,
+            AVG(ans.answer_result) AS averageScore,
+            COUNT(ans.answer_id) AS responseCount
+        FROM answer AS ans
+            INNER JOIN filteredSurvey sur ON sur.survey_id = ans.survey_id
+            INNER JOIN team tea ON tea.team_id = sur.team_id
+            INNER JOIN question que ON que.question_id = ans.question_id
+        WHERE
+            que.question_uuid = question_uuid
+        GROUP BY
+            ans.survey_id, 
+            ans.question_id
+    )
+    SELECT
+        sur.survey_uuid AS surveyId,
+        sur.survey_name AS surveyName,
+        sur.create_date AS surveyDate,
+        ans.question_uuid AS questionId,
+        ans.averageScore,
+        ans.responseCount
+    FROM avgTable ans
+        INNER JOIN survey sur ON sur.survey_id = ans.survey_id
+    ORDER BY
+        sur.create_date,
+        ans.survey_id,
+        ans.question_id
+    ;
+END$$
+DELIMITER ;
