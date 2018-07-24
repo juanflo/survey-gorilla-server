@@ -60,6 +60,7 @@ app.post(`${API}/register`, (req, res) => {
     });
 });
 
+
 /**
  * Start a survey for a team
  */
@@ -89,8 +90,7 @@ app.post(`${API}/team/:teamId/start-survey`, (req, res) => {
 /**
  * Submit a survey
  */
-app.post(`${API}/survey/:teamId/:surveyId/submit`, (req, res) => {
-    const team_shortId = req.params.teamId;
+app.post(`${API}/survey/:surveyId/submit`, (req, res) => {
     const surveyId = req.params.surveyId;
 
     let query = 'INSERT INTO answer (answer_uuid, answer_comment, question_id, survey_id, answer_result) VALUES ';
@@ -109,7 +109,7 @@ app.post(`${API}/survey/:teamId/:surveyId/submit`, (req, res) => {
 
     connection.query(query, (err) => {
         if (err) {
-            console.error(`Could not save survey ${surveyId} for team ${team_shortId}`);
+            console.error(`Could not save survey ${surveyId}`);
             res.status(500).send();
             return;
         }
@@ -117,6 +117,7 @@ app.post(`${API}/survey/:teamId/:surveyId/submit`, (req, res) => {
         res.status(201).send();
     })
 });
+
 
 /**
  * Retrieves team info
@@ -135,6 +136,7 @@ app.get(`${API}/team/:teamId`, (req, res) => {
     });
 });
 
+
 /**
  * Retrieve a list of surveys for a team
  */
@@ -143,7 +145,7 @@ app.get(`${API}/team/:teamId/surveys`, (req, res) => {
     const query = 'SELECT survey_uuid AS id, survey_name AS name FROM survey INNER JOIN team ON survey.team_id = team.team_id WHERE team_uuid = ?';
     connection.query(query, [team_shortId], (err, results) => {
         if (err) {
-            console.error('Could not retrieve surveys for team from database');
+            console.error('Could not retrieve team from database');
             console.error(err);
             res.status(500).send();
             return;
@@ -151,6 +153,26 @@ app.get(`${API}/team/:teamId/surveys`, (req, res) => {
         res.status(200).json(results);
     });
 });
+ 
+ 
+/**
+ * Retrieves survey info
+ */
+app.get(`${API}/survey/:surveyId`, (req, res) => {
+    const survey_shortId = req.params.surveyId;
+    const query = 'SELECT survey_uuid AS id, survey_name AS name FROM survey WHERE survey_uuid = ?';
+    connection.query(query, [survey_shortId], (err, results) => {
+        if (err) {
+            console.error('Could not retrieve survey from database');
+            console.error(err);
+            res.status(500).send();
+            return;
+        }
+
+        res.status(200).json(results[0]);
+    });
+});
+
 
 /**
  * Retrieve average results for a specific survey
@@ -170,8 +192,10 @@ app.get(`${API}/survey/:teamId/:surveyId/result`, (req, res) => {
         }
 
         res.status(200).json(results);
+
     });
 });
+
 
 /**
  *  Retrieve trending results for a team
@@ -193,11 +217,12 @@ app.get(`${API}/survey/:teamId/result`, (req, res) => {
     });
 })
 
+
 /**
  * Retrieve a list of questions
  */
 app.get(`${API}/questions`, (req, res) => {
-    connection.query('SELECT question_uuid, question_text FROM question', (err, results, fields) => {
+    connection.query('SELECT question_uuid AS questionId, question_text AS text FROM question', (err, results, fields) => {
         if (err) {
             console.error('Could not retrieve questions from database');
             res.status(500).send();
