@@ -130,8 +130,8 @@ BEGIN
 		SELECT
 			ans.survey_id, 
 			ans.question_id,
-			AVG(ans.answer_result) AS avgScore,
-			COUNT(ans.answer_id) AS countOfAnswers
+			AVG(ans.answer_result) AS averageScore,
+			COUNT(ans.answer_id) AS responseCount
 		FROM answer AS ans
 			INNER JOIN survey sur ON sur.survey_id = ans.survey_id
 			INNER JOIN team tea ON tea.team_id = sur.team_id
@@ -143,9 +143,9 @@ BEGIN
 			ans.question_id
 	)
 	SELECT
-		que.question_uuid,
-		ans.avgScore,
-		ans.countOfAnswers
+		que.question_uuid AS questionId,
+		ans.averageScore,
+		ans.responseCount
 	FROM avgTable ans
 		INNER JOIN question que ON que.question_id = ans.question_id
 	ORDER BY
@@ -179,8 +179,8 @@ BEGIN
         SELECT
             ans.survey_id, 
             ans.question_id,
-            AVG(ans.answer_result) AS avgScore,
-            COUNT(ans.answer_id) AS countOfAnswers
+            AVG(ans.answer_result) AS averageScore,
+            COUNT(ans.answer_id) AS responseCount
         FROM answer AS ans
             INNER JOIN filteredSurvey sur ON sur.survey_id = ans.survey_id
             INNER JOIN team tea ON tea.team_id = sur.team_id
@@ -189,12 +189,12 @@ BEGIN
             ans.question_id
     )
     SELECT
-        sur.survey_uuid,
-        sur.survey_name,
+        sur.survey_uuid AS surveyId,
+        sur.survey_name AS surveyName,
         sur.create_date AS surveyDate,
-        que.question_uuid,
-        ans.avgScore,
-        ans.countOfAnswers
+        que.question_uuid AS questionId,
+        ans.averageScore,
+        ans.responseCount
     FROM avgTable ans
         INNER JOIN question que ON que.question_id = ans.question_id
         INNER JOIN survey sur ON sur.survey_id = ans.survey_id
