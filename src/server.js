@@ -118,6 +118,36 @@ app.post(`${API}/survey/:teamId/:surveyId/submit`, (req, res) => {
     })
 });
 
+app.get(`${API}/team/:teamId`, (req, res) => {
+    const team_shortId = req.params.teamId;
+    const query = 'SELECT team_uuid AS id, team_name AS name FROM team WHERE team_uuid = ?';
+    connection.query(query, [team_shortId], (err, results) => {
+        if (err) {
+            console.error('Could not retrieve surveys for team from database');
+            console.error(err);
+            res.status(500).send();
+            return;
+        }
+        res.status(200).json(results[0]);
+    });
+});
+
+/**
+ * Retrieve a list of surveys for a team
+ */
+app.get(`${API}/team/:teamId/surveys`, (req, res) => {
+    const team_shortId = req.params.teamId;
+    const query = 'SELECT survey_uuid AS id, survey_name AS name FROM survey INNER JOIN team ON survey.team_id = team.team_id WHERE team_uuid = ?';
+    connection.query(query, [team_shortId], (err, results) => {
+        if (err) {
+            console.error('Could not retrieve surveys for team from database');
+            console.error(err);
+            res.status(500).send();
+            return;
+        }
+        res.status(200).json(results);
+    });
+});
 
 /**
  * Retrieve a list of questions
