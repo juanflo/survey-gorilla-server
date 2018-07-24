@@ -60,6 +60,7 @@ app.post(`${API}/register`, (req, res) => {
     });
 });
 
+
 /**
  * Start a survey for a team
  */
@@ -117,6 +118,7 @@ app.post(`${API}/survey/:surveyId/submit`, (req, res) => {
     })
 });
 
+
 /**
  * Retrieves team info
  */
@@ -134,6 +136,7 @@ app.get(`${API}/team/:teamId`, (req, res) => {
     });
 });
 
+
 /**
  * Retrieve a list of surveys for a team
  */
@@ -150,7 +153,8 @@ app.get(`${API}/team/:teamId/surveys`, (req, res) => {
         res.status(200).json(results);
     });
 });
-
+ 
+ 
 /**
  * Retrieves survey info
  */
@@ -164,9 +168,55 @@ app.get(`${API}/survey/:surveyId`, (req, res) => {
             res.status(500).send();
             return;
         }
+
         res.status(200).json(results[0]);
     });
 });
+
+
+/**
+ * Retrieve average results for a specific survey
+ */
+app.get(`${API}/survey/:teamId/:surveyId/result`, (req, res) => {
+    const team_shortId = req.params.teamId;
+    const survey_shortId = req.params.surveyId;
+
+    const query = 'CALL getResultsBySurvey(?, ?)';
+
+    connection.query(query, [team_shortId, survey_shortId], (err, results) => {
+        if (err) {
+            console.error(`Could not retieve results for survey ${survey_shortId} for team ${team_shortId}`);
+            console.error(err);
+            res.status(500).send();
+            return;
+        }
+
+        res.status(200).json(results);
+
+    });
+});
+
+
+/**
+ *  Retrieve trending results for a team
+ */
+app.get(`${API}/survey/:teamId/result`, (req, res) => {
+    const team_shortId = req.params.teamId;
+
+    const query = 'CALL getTrendResultsByTeam(?, ?)';
+
+    connection.query(query, [team_shortId, 6], (err, results) => {
+        if (err) {
+            console.error(`Could not retieve trend results for team ${team_shortId}`);
+            console.error(err);
+            res.status(500).send();
+            return;
+        }
+
+        res.status(200).json(results);
+    });
+})
+
 
 /**
  * Retrieve a list of questions
