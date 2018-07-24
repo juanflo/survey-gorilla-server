@@ -119,8 +119,7 @@ VALUES
   ('000010', 'We are in control of our destiny! We decide what to build and how to build it.', 'self-organization');
 
 
-
-# Dump of stored procedure
+# Get the average score of a survey of a team
 # ------------------------------------------------------------
 DELIMITER $$
 DROP PROCEDURE IF EXISTS `getResultsBySurvey`; $$
@@ -150,8 +149,6 @@ BEGIN
 		ans.countOfAnswers
 	FROM avgTable ans
 		INNER JOIN question que ON que.question_id = ans.question_id
-		INNER JOIN survey sur ON sur.survey_id = ans.survey_id
-		INNER JOIN team tea ON tea.team_id = sur.team_id
 	ORDER BY
 		ans.question_id
   ;	
@@ -159,8 +156,9 @@ END$$
 DELIMITER ;
 
 
-# Dump of stored procedure
-# ------------------------------------------------------------
+
+# Get the average score of the last 6 surveys of a team
+# ----------------------------------------------------------------------
 DELIMITER $$
 DROP PROCEDURE IF EXISTS `getTrendResultsByTeam`; $$
 CREATE PROCEDURE `getTrendResultsByTeam`(IN team_uuid VARCHAR(32))
@@ -201,7 +199,6 @@ BEGIN
     FROM avgTable ans
         INNER JOIN question que ON que.question_id = ans.question_id
         INNER JOIN survey sur ON sur.survey_id = ans.survey_id
-        INNER JOIN team tea ON tea.team_id = sur.team_id
     ORDER BY
         sur.create_date,
         ans.survey_id,
