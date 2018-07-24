@@ -125,7 +125,6 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS `getResultsBySurvey`; $$
 CREATE PROCEDURE `getResultsBySurvey`(IN team_uuid VARCHAR(32), IN survey_uuid VARCHAR(32))
 BEGIN
-
 	WITH avgTable AS 
 	(
 		SELECT
@@ -161,7 +160,7 @@ DELIMITER ;
 # ----------------------------------------------------------------------
 DELIMITER $$
 DROP PROCEDURE IF EXISTS `getTrendResultsByTeam`; $$
-CREATE PROCEDURE `getTrendResultsByTeam`(IN team_uuid VARCHAR(32))
+CREATE PROCEDURE `getTrendResultsByTeam`(IN team_uuid VARCHAR(32), IN surveyLimit INT)
 BEGIN
     WITH filteredSurvey AS
     (
@@ -173,7 +172,7 @@ BEGIN
             tea.team_uuid = team_uuid
         ORDER BY 
             sur.create_date DESC
-        LIMIT 6
+        LIMIT surveyLimit
     ),
     avgTable AS 
     (
