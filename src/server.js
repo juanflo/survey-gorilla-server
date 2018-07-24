@@ -203,9 +203,9 @@ app.get(`${API}/survey/:teamId/:surveyId/result`, (req, res) => {
 app.get(`${API}/survey/:teamId/result`, (req, res) => {
     const team_shortId = req.params.teamId;
 
-    const query = 'CALL getTrendResultsByTeam(?)';
+    const query = 'CALL getTrendResultsByTeam(?, ?)';
 
-    connection.query(query, [team_shortId], (err, results) => {
+    connection.query(query, [team_shortId, 6], (err, results) => {
         if (err) {
             console.error(`Could not retieve trend results for team ${team_shortId}`);
             console.error(err);
