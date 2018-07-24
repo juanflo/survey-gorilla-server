@@ -117,3 +117,95 @@ VALUES
   ('000008', 'We get stuff done really quickly.No waiting, no delays.', 'speed'),
   ('000009', 'We always get great support & help when we ask for it!', 'support'),
   ('000010', 'We are in control of our destiny! We decide what to build and how to build it.', 'self-organization');
+
+
+
+# Dump of stored procedure
+# ------------------------------------------------------------
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `getResultsBySurvey`; $$
+CREATE PROCEDURE `getResultsBySurvey`(IN team_uuid VARCHAR(32), IN survey_uuid VARCHAR(32))
+BEGIN
+
+	WITH avgTable AS 
+	(
+		SELECT
+			ans.survey_id, 
+			ans.question_id,
+			AVG(ans.answer_result) AS avgScore,
+			COUNT(ans.answer_id) AS countOfAnswers
+		FROM answer AS ans
+			INNER JOIN survey sur ON sur.survey_id = ans.survey_id
+			INNER JOIN team tea ON tea.team_id = sur.team_id
+		WHERE
+			sur.survey_uuid = survey_uuid
+			AND tea.team_uuid = team_uuid
+		GROUP BY
+			ans.survey_id, 
+			ans.question_id
+	)
+	SELECT
+		que.question_uuid,
+		ans.avgScore,
+		ans.countOfAnswers
+	FROM avgTable ans
+		INNER JOIN question que ON que.question_id = ans.question_id
+		INNER JOIN survey sur ON sur.survey_id = ans.survey_id
+		INNER JOIN team tea ON tea.team_id = sur.team_id
+	ORDER BY
+		ans.question_id
+  ;	
+END$$
+DELIMITER ;
+
+
+# Dump of stored procedure
+# ------------------------------------------------------------
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `getTrendResultsByTeam`; $$
+CREATE PROCEDURE `getTrendResultsByTeam`(IN team_uuid VARCHAR(32))
+BEGIN
+    WITH filteredSurvey AS
+    (
+        SELECT
+            sur.*
+        FROM survey sur
+            INNER JOIN team tea on tea.team_id = sur.team_id
+        WHERE
+            tea.team_uuid = team_uuid
+        ORDER BY 
+            sur.create_date DESC
+        LIMIT 6
+    ),
+    avgTable AS 
+    (
+        SELECT
+            ans.survey_id, 
+            ans.question_id,
+            AVG(ans.answer_result) AS avgScore,
+            COUNT(ans.answer_id) AS countOfAnswers
+        FROM answer AS ans
+            INNER JOIN filteredSurvey sur ON sur.survey_id = ans.survey_id
+            INNER JOIN team tea ON tea.team_id = sur.team_id
+        GROUP BY
+            ans.survey_id, 
+            ans.question_id
+    )
+    SELECT
+        sur.survey_uuid,
+        sur.survey_name,
+        sur.create_date AS surveyDate,
+        que.question_uuid,
+        ans.avgScore,
+        ans.countOfAnswers
+    FROM avgTable ans
+        INNER JOIN question que ON que.question_id = ans.question_id
+        INNER JOIN survey sur ON sur.survey_id = ans.survey_id
+        INNER JOIN team tea ON tea.team_id = sur.team_id
+    ORDER BY
+        sur.create_date,
+        ans.survey_id,
+        ans.question_id
+    ;
+END$$
+DELIMITER ;
