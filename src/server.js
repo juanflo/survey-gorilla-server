@@ -1,6 +1,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const moment = require('moment');
 const mysql = require('mysql');
 const shortid = require('shortid');
 
@@ -213,7 +214,23 @@ app.get(`${API}/survey/:teamId/result`, (req, res) => {
             return;
         }
 
-        res.status(200).json(results[0]);
+        let chartData = [];
+        results[0].forEach(obj => {
+            const data = chartData.find( dataPoint => dataPoint.name === obj.category);
+            if (data) {
+                data.data[moment(obj.surveyDate).format('YYYY-MM-DD')] = obj.averageScore;
+            } else {
+                const newData = {
+                    'name': obj.category,
+                    'data': {
+                         [moment(obj.surveyDate).format('YYYY-MM-DD')]: obj.averageScore
+                    }
+                }
+                chartData.push(newData);
+            }
+        })
+
+        res.status(200).json(chartData);
     });
 });
 
