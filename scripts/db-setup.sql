@@ -136,21 +136,24 @@ BEGIN
 			INNER JOIN survey sur ON sur.survey_id = ans.survey_id
 			INNER JOIN team tea ON tea.team_id = sur.team_id
 		WHERE
-			sur.survey_uuid = survey_uuid
-			AND tea.team_uuid = team_uuid
+			tea.team_uuid = team_uuid
+			AND sur.survey_uuid = survey_uuid
 		GROUP BY
 			ans.survey_id, 
 			ans.question_id
 	)
 	SELECT
 		que.question_uuid AS questionId,
+		que.question_area AS category,
+		DATE(sur.create_date) AS surveyDate,
 		ans.averageScore,
 		ans.responseCount
 	FROM avgTable ans
 		INNER JOIN question que ON que.question_id = ans.question_id
+		INNER JOIN survey sur ON sur.survey_id = ans.survey_id
 	ORDER BY
 		ans.question_id
-  ;	
+    ;	
 END$$
 DELIMITER ;
 
@@ -191,8 +194,9 @@ BEGIN
     SELECT
         sur.survey_uuid AS surveyId,
         sur.survey_name AS surveyName,
-        sur.create_date AS surveyDate,
+        DATE(sur.create_date) AS surveyDate,
         que.question_uuid AS questionId,
+        que.question_area AS category,
         ans.averageScore,
         ans.responseCount
     FROM avgTable ans
@@ -246,12 +250,14 @@ BEGIN
     SELECT
         sur.survey_uuid AS surveyId,
         sur.survey_name AS surveyName,
-        sur.create_date AS surveyDate,
+        DATE(sur.create_date) AS surveyDate,
         ans.question_uuid AS questionId,
+        que.question_area AS category,
         ans.averageScore,
         ans.responseCount
     FROM avgTable ans
         INNER JOIN survey sur ON sur.survey_id = ans.survey_id
+        INNER JOIN question que ON que.question_id = ans.question_id
     ORDER BY
         sur.create_date,
         ans.survey_id,
