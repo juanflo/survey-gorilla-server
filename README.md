@@ -1,7 +1,7 @@
 # Survey-Gorilla-Server
 
 
-As part of PI2 Innovation Week, we decided to improve our squad health check process by building a simple survey app which we take before every retro meeting. The hope is we can see trends, foster converstaions and improve our overall team health.
+As part of PI2 Innovation Week, we decided to improve our squad health check process by building a simple survey app which we take before every retro meeting. The hope is we can see trends, foster conversations and improve our overall team health.
 
 API Server Contributors:
 [Juan Flores](https://github.com/juanflo), 
@@ -10,9 +10,9 @@ API Server Contributors:
 
 ------------------------------------------
 
-### Build and Deploy Locally
+## Build and Deploy Locally
 
-In order to run the server you will need either `mysql` or `mariadb`. On a Mac it is recommened to use [Homebrew](https://brew.sh/).
+In order to run the server you will need [mariadb](https://mariadb.org/). On a Mac it is recommened to use [Homebrew](https://brew.sh/).
 
 
 1. Run the `db-setup.sql` script in terminal:
