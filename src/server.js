@@ -215,7 +215,29 @@ app.get(`${API}/survey/:teamId/result`, (req, res) => {
 
         res.status(200).json(results[0]);
     });
-})
+});
+
+
+/**
+ *  Retrieve trending results for a specific question of a given team
+ */
+app.get(`${API}/question/:teamId/:questionId/result`, (req, res) => {
+    const team_shortId = req.params.teamId;
+    const question_shortId = req.params.questionId;
+
+    const query = 'CALL getResultsByTeamAndQuestion(?, ?, ?)';
+
+    connection.query(query, [team_shortId, question_shortId, 6], (err, results) => {
+        if (err) {
+            console.error(`Could not retieve trend results for question ${question_shortId}`);
+            console.error(err);
+            res.status(500).send();
+            return;
+        }
+
+        res.status(200).json(results[0]);
+    });
+});
 
 
 /**
@@ -235,4 +257,4 @@ app.get(`${API}/questions`, (req, res) => {
 
 app.listen(PORT, () => {
     console.info(`Server has been started on port ${PORT}`);
-})
+});
